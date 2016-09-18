@@ -17,7 +17,7 @@ namespace GameLobbyServer.Controllers
 
         private char roomListStringSeparator = '#';
 
-        public string roomList()
+        public string RoomList()
         {
             StringBuilder s = new StringBuilder();
             //e.g 1#player#room name#1#10#127.0.0.1##
@@ -39,6 +39,11 @@ namespace GameLobbyServer.Controllers
                 s.Append(roomListStringSeparator);
             }
             return s.ToString();
+        }
+
+        public string IPAdress()
+        {
+            return Request.UserHostAddress;
         }
 
         // GET: Rooms
