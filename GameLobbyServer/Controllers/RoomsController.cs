@@ -41,9 +41,22 @@ namespace GameLobbyServer.Controllers
             return s.ToString();
         }
 
-        public string IPAdress()
+        public string IPAddress()
         {
-            return Request.UserHostAddress;
+            string IPAdd = string.Empty;
+            IPAdd = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+            if (string.IsNullOrEmpty(IPAdd))
+                IPAdd = Request.ServerVariables["REMOTE_ADDR"];//在hostease上，此处获取到的是server ip
+            /*
+            foreach (var item in Request.ServerVariables)
+            {
+                IPAdd += item.ToString() + ": " + Request.ServerVariables[item.ToString()];
+                IPAdd += "<br />";
+            }
+            */
+            IPAdd = IPAdd.Split(',')[0];
+            IPAdd = IPAdd.Split(':')[0];
+            return IPAdd;
         }
 
         // GET: Rooms
@@ -83,6 +96,7 @@ namespace GameLobbyServer.Controllers
         {
             if (ModelState.IsValid)
             {
+                room.HostIP = IPAddress();
                 db.Rooms.Add(room);
                 db.SaveChanges();
                 //return RedirectToAction("Index");
@@ -117,6 +131,7 @@ namespace GameLobbyServer.Controllers
         {
             if (ModelState.IsValid)
             {
+                room.HostIP = IPAddress();
                 db.Entry(room).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -142,12 +157,13 @@ namespace GameLobbyServer.Controllers
         // POST: Rooms/Delete/5
         [HttpPost, ActionName("Delete")]
         //[ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public string DeleteConfirmed(int id)
         {
             Room room = db.Rooms.Find(id);
             db.Rooms.Remove(room);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            //return RedirectToAction("Index");
+            return id.ToString();
         }
 
         protected override void Dispose(bool disposing)
